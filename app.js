@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+var session =require('express-session')
 var userRouter = require('./routes/user');
 var adminRouter = require('./routes/admin');
 
@@ -19,11 +20,17 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 app.engine('hbs', engine({extname:'hbs',defaultLayout:'layout',layoutDir:__dirname+'views/layout/',
 partials:__dirname+'views/partials/'}));
+
+app.use((req,res,next)=>{
+  res.set('Cache-Control','no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+  next();
+})
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({secret:"Key",cookie:{maxAge:600000}})) 
 
 app.use('/', userRouter);
 app.use('/admin', adminRouter);
